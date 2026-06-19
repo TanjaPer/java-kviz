@@ -1,0 +1,1277 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Java, Excel i Python kviz</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d9e0ec;
+      --accent: #2f66d0;
+      --accent-soft: #eaf1ff;
+      --ok: #14804a;
+      --ok-soft: #e8f7ef;
+      --bad: #c93535;
+      --bad-soft: #fff0f0;
+      --warn: #8a5a00;
+      --warn-soft: #fff7df;
+      --shadow: 0 18px 55px rgba(16, 24, 40, .10);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #dce9ff, transparent 32rem), var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 30px 0 56px;
+    }
+
+    header.hero {
+      background: linear-gradient(135deg, #16213f, #2f66d0);
+      color: white;
+      border-radius: var(--radius);
+      padding: 34px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header.hero::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -58px;
+      top: -72px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .kicker {
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-size: .78rem;
+      opacity: .8;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 8px 0 10px;
+      font-size: clamp(2rem, 5vw, 3.7rem);
+      line-height: 1;
+    }
+
+    .hero p { max-width: 760px; margin: 0; opacity: .92; }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+      gap: 20px;
+      align-items: start;
+    }
+
+    label { font-weight: 700; }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      background: white;
+      color: var(--ink);
+    }
+
+    input[type="number"] { max-width: 90px; }
+
+    .field { margin-bottom: 16px; }
+
+    .hint { color: var(--muted); font-size: .94rem; margin-top: 6px; }
+
+    .section-picker {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .section-picker label,
+    .choice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .section-picker input,
+    .choice input { margin-top: 4px; }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+      padding: 13px 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 10px 22px rgba(47, 102, 208, .24);
+    }
+
+    button.secondary {
+      background: #eef3fb;
+      color: var(--ink);
+      box-shadow: none;
+      border: 1px solid var(--line);
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      align-items: center;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: #1f4ea7;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: .92rem;
+      font-weight: 800;
+    }
+
+    .progress-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 10px 0;
+      background: rgba(245, 247, 251, .88);
+      backdrop-filter: blur(10px);
+      display: none;
+    }
+
+    .progress-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 30px rgba(16, 24, 40, .08);
+    }
+
+    .bar {
+      height: 10px;
+      background: #edf1f7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      border-radius: inherit;
+      transition: width .2s ease;
+    }
+
+    .section-title {
+      margin: 28px 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 2px solid #d9e0ec;
+      padding-bottom: 10px;
+    }
+
+    .section-title h2 { margin: 0; font-size: 1.55rem; }
+
+    .question {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 14px 0;
+      box-shadow: 0 12px 34px rgba(16, 24, 40, .06);
+    }
+
+    .question-top {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .qnum {
+      font-weight: 900;
+      color: var(--accent);
+      min-width: 44px;
+    }
+
+    .qtitle {
+      font-weight: 800;
+      flex: 1;
+    }
+
+    .points {
+      color: var(--muted);
+      font-size: .9rem;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    pre {
+      margin: 12px 0;
+      padding: 14px;
+      overflow: auto;
+      background: #101828;
+      color: #f4f7fb;
+      border-radius: 16px;
+      font-size: .96rem;
+      line-height: 1.5;
+    }
+
+    .choices {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .choice strong { min-width: 24px; }
+
+    .text-answer { max-width: 380px; margin-top: 12px; }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .sub-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: #fbfcff;
+    }
+
+    .sub-card label { display: block; margin-bottom: 8px; }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      background: white;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: .96rem;
+    }
+
+    .data-table th, .data-table td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: left;
+    }
+
+    .data-table th { background: #f1f5fb; }
+
+    .note {
+      border-left: 4px solid var(--warn);
+      background: var(--warn-soft);
+      color: #503500;
+      padding: 12px 14px;
+      border-radius: 14px;
+      margin-top: 12px;
+    }
+
+    .result-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 26px;
+      margin: 20px 0;
+    }
+
+    .score-big {
+      font-size: clamp(2.1rem, 7vw, 5rem);
+      line-height: 1;
+      font-weight: 950;
+      color: var(--accent);
+      margin: 8px 0;
+    }
+
+    .review-item {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 15px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .review-item.correct { border-color: rgba(20, 128, 74, .35); background: var(--ok-soft); }
+    .review-item.wrong { border-color: rgba(201, 53, 53, .35); background: var(--bad-soft); }
+    .review-item.partial { border-color: rgba(138, 90, 0, .35); background: var(--warn-soft); }
+
+    .review-status {
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .correct .review-status { color: var(--ok); }
+    .wrong .review-status { color: var(--bad); }
+    .partial .review-status { color: var(--warn); }
+
+    .review-line { margin: 5px 0; }
+
+    .muted { color: var(--muted); }
+    .hidden { display: none !important; }
+
+    footer {
+      color: var(--muted);
+      font-size: .92rem;
+      margin-top: 28px;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 20px, 1120px); padding-top: 12px; }
+      header.hero { padding: 24px; }
+      .setup-grid, .mini-grid { grid-template-columns: 1fr; }
+      .section-picker { grid-template-columns: 1fr; }
+      .progress-card { grid-template-columns: 1fr; }
+      .question { padding: 16px; }
+      .question-top { display: block; }
+      .points { margin-top: 4px; display: inline-block; }
+    }
+
+    @media print {
+      body { background: white; }
+      .setup, .progress-wrap, .actions button, footer { display: none !important; }
+      .panel, .question, .result-card, .review-item { box-shadow: none; break-inside: avoid; }
+      header.hero { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div class="kicker">Sistematizacija gradiva</div>
+      <h1>Java, Excel i Python kviz</h1>
+      <p>Učenik odgovara na pitanja, predaje test i na kraju dobija rezultat, procenat, tačna rešenja i kratak pregled grešaka.</p>
+    </header>
+
+    <section id="setup" class="panel setup">
+      <div class="setup-grid">
+        <div>
+          <h2>Pokretanje kviza</h2>
+          <p class="muted">Izaberi jedan deo ili pokreni sva tri dela. Rezultati se prikazuju samo na ovom računaru i ne čuvaju se automatski.</p>
+          <div class="field">
+            <label for="studentName">Ime i prezime učenika</label>
+            <input id="studentName" type="text" placeholder="npr. Ana Petrović" autocomplete="name" />
+            <div class="hint">Može ostati prazno za vežbanje.</div>
+          </div>
+        </div>
+        <div>
+          <label>Delovi kviza</label>
+          <div class="section-picker" id="sectionPicker">
+            <label><input type="checkbox" value="JAVA" checked /> Java</label>
+            <label><input type="checkbox" value="EXCEL" checked /> Excel</label>
+            <label><input type="checkbox" value="JUPYTER" checked /> Jupyter/Python</label>
+            <label><input type="checkbox" value="ALL" id="allSections" checked /> Sva tri dela</label>
+          </div>
+          <div class="actions">
+            <button id="startBtn">Započni kviz</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-card">
+        <div>
+          <div class="bar"><span id="progressBar"></span></div>
+          <div class="hint" id="progressText">0% popunjeno</div>
+        </div>
+        <button class="secondary" id="finishTopBtn">Predaj test</button>
+      </div>
+    </div>
+
+    <main id="quizArea" class="hidden"></main>
+
+    <section id="results" class="hidden"></section>
+
+    <footer>
+      HTML kviz bez spoljne biblioteke. Može na GitHub Pages, Netlify ili Vercel kao statički sajt.
+    </footer>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      {
+        id: "java-1", section: "JAVA", type: "single", points: 1,
+        prompt: "Šta će program ispisati?",
+        code: "int x = 5;\nx = x + 3;\nSystem.out.println(x);",
+        options: [{id:"A", text:"5"}, {id:"B", text:"8"}, {id:"C", text:"3"}, {id:"D", text:"15"}],
+        correct: "B",
+        explanation: "Promenljiva x prvo ima vrednost 5, zatim se uvećava za 3, pa je rezultat 8."
+      },
+      {
+        id: "java-2", section: "JAVA", type: "single", points: 1,
+        prompt: "Šta će program ispisati?",
+        code: "int a = 10;\nint b = 4;\nSystem.out.println(a - b);",
+        options: [{id:"A", text:"14"}, {id:"B", text:"4"}, {id:"C", text:"6"}, {id:"D", text:"40"}],
+        correct: "C",
+        explanation: "Računa se 10 - 4, pa se ispisuje 6."
+      },
+      {
+        id: "java-3", section: "JAVA", type: "single", points: 1,
+        prompt: "Šta će biti rezultat?",
+        code: "if (7 > 3)\n    System.out.println(\"DA\");\nelse\n    System.out.println(\"NE\");",
+        options: [{id:"A", text:"NE"}, {id:"B", text:"DA"}, {id:"C", text:"Greška"}, {id:"D", text:"Ništa"}],
+        correct: "B",
+        explanation: "Uslov 7 > 3 je tačan, zato se ispisuje DA."
+      },
+      {
+        id: "java-4", section: "JAVA", type: "single", points: 1,
+        prompt: "Koliko brojeva će biti ispisano?",
+        code: "for (int i = 1; i <= 3; i++)\n    System.out.println(i);",
+        options: [{id:"A", text:"2"}, {id:"B", text:"3"}, {id:"C", text:"4"}, {id:"D", text:"1"}],
+        correct: "B",
+        explanation: "Petlja ide za i = 1, 2 i 3. Ispisuju se tri broja."
+      },
+      {
+        id: "java-5", section: "JAVA", type: "single", points: 1,
+        prompt: "Šta će program ispisati?",
+        code: "int broj = 5;\nif (broj % 2 == 0)\n    System.out.println(\"Paran\");",
+        options: [{id:"A", text:"Neparan"}, {id:"B", text:"4"}, {id:"C", text:"Paran"}, {id:"D", text:"Greška"}, {id:"E", text:"Ništa se ne ispisuje"}],
+        correct: "E",
+        explanation: "Broj 5 nije paran, a ne postoji else grana. Program se izvršava bez ispisa. U originalnom dokumentu ovaj tačan odgovor nije bio ponuđen, pa je dodat kao E."
+      },
+      {
+        id: "java-6", section: "JAVA", type: "single", points: 1,
+        prompt: "Koja vrednost promenljive y se ispisuje?",
+        code: "int x = 4;\nint y = x * x + 1;\nSystem.out.println(y);",
+        options: [{id:"A", text:"8"}, {id:"B", text:"16"}, {id:"C", text:"17"}, {id:"D", text:"9"}],
+        correct: "C",
+        explanation: "4 * 4 + 1 = 17."
+      },
+      {
+        id: "java-7", section: "JAVA", type: "single", points: 1,
+        prompt: "Koji tip podatka koristimo za cele brojeve?",
+        options: [{id:"A", text:"double"}, {id:"B", text:"int"}, {id:"C", text:"String"}, {id:"D", text:"boolean"}],
+        correct: "B",
+        explanation: "Tip int se koristi za cele brojeve."
+      },
+      {
+        id: "java-8", section: "JAVA", type: "single", points: 1,
+        prompt: "Koji tip podatka koristimo za tekst?",
+        options: [{id:"A", text:"char"}, {id:"B", text:"boolean"}, {id:"C", text:"double"}, {id:"D", text:"String"}],
+        correct: "D",
+        explanation: "String se koristi za tekst."
+      },
+      {
+        id: "java-9", section: "JAVA", type: "single", points: 1,
+        prompt: "Koja metoda služi za ispis na ekran?",
+        options: [{id:"A", text:"write()"}, {id:"B", text:"print()"}, {id:"C", text:"System.out.println()"}, {id:"D", text:"display()"}],
+        correct: "C",
+        explanation: "U Javi se često koristi System.out.println() za ispis u konzoli."
+      },
+      {
+        id: "java-10", section: "JAVA", type: "single", points: 1,
+        prompt: "Koja petlja ima poznat broj ponavljanja?",
+        options: [{id:"A", text:"while"}, {id:"B", text:"switch"}, {id:"C", text:"for"}, {id:"D", text:"if"}],
+        correct: "C",
+        explanation: "For petlja se najčešće koristi kada unapred znamo broj ponavljanja."
+      },
+      {
+        id: "java-11", section: "JAVA", type: "single", points: 1,
+        prompt: "Koji operator predstavlja ostatak pri deljenju?",
+        options: [{id:"A", text:"%"}, {id:"B", text:"/"}, {id:"C", text:"*"}],
+        correct: "A",
+        explanation: "Operator % vraća ostatak pri deljenju."
+      },
+      {
+        id: "java-12", section: "JAVA", type: "single", points: 1,
+        prompt: "Šta vraća izraz 5 > 3?",
+        options: [{id:"A", text:"int"}, {id:"B", text:"double"}, {id:"C", text:"boolean"}, {id:"D", text:"String"}],
+        correct: "C",
+        explanation: "Poređenje vraća logičku vrednost, odnosno boolean."
+      },
+      {
+        id: "java-13", section: "JAVA", type: "single", points: 1,
+        prompt: "Koliko puta će se izvršiti petlja?",
+        code: "for (int i = 1; i <= 5; i++)",
+        options: [{id:"A", text:"4"}, {id:"B", text:"5"}, {id:"C", text:"6"}, {id:"D", text:"Beskonačno"}],
+        correct: "B",
+        explanation: "Vrednosti za i su 1, 2, 3, 4 i 5, dakle pet puta."
+      },
+      {
+        id: "java-14", section: "JAVA", type: "matching", points: 8,
+        prompt: "Spoj pojam i značenje.",
+        terms: [
+          {id:"1", text:"int"}, {id:"2", text:"double"}, {id:"3", text:"String"}, {id:"4", text:"boolean"},
+          {id:"5", text:"Scanner"}, {id:"6", text:"if/else"}, {id:"7", text:"for"}, {id:"8", text:"%"}
+        ],
+        meanings: [
+          {id:"A", text:"Ostatak pri deljenju"}, {id:"B", text:"Tip podatka za realne brojeve"},
+          {id:"C", text:"Grananje programa"}, {id:"D", text:"Tip podatka za tekst"},
+          {id:"E", text:"Tip podatka za tačno/netačno"}, {id:"F", text:"Petlja sa poznatim brojem ponavljanja"},
+          {id:"G", text:"Klasa za unos podataka sa tastature"}, {id:"H", text:"Tip podatka za cele brojeve"}
+        ],
+        correct: {"1":"H", "2":"B", "3":"D", "4":"E", "5":"G", "6":"C", "7":"F", "8":"A"},
+        explanation: "Pojmovi su povezani sa osnovnim značenjima tipova, klase Scanner, grananja, petlje i operatora %."
+      },
+      {
+        id: "java-15", section: "JAVA", type: "multiText", points: 4,
+        prompt: "Upiši odgovarajuće delove koda na prazna mesta.",
+        code: "a) Scanner sc = new Scanner(System.in);\nint broj = sc.__________();\n\nif (broj > 0) {\n    System.out.println(\"Pozitivan\");\n}\n\nb) for (int i = 1; i <= ______; i++) {\n    System.out.println(______);\n}\n\nc) String lozinka = sc.nextLine();\nif (lozinka.__________(\"java123\")) {\n    System.out.println(\"Pristup dozvoljen\");\n} else {\n    System.out.println(\"Pogrešna lozinka\");\n}",
+        blanks: [
+          {label:"a) sc.__________();", answers:["nextInt", "nextInt()", "sc.nextInt", "sc.nextInt()"], correctText:"nextInt"},
+          {label:"b) i <= ______", answers:["10"], correctText:"10"},
+          {label:"b) System.out.println(______);", answers:["i"], correctText:"i"},
+          {label:"c) lozinka.__________(\"java123\")", answers:["equals", "equals()", "equals(\"java123\")", "equals('java123')"], correctText:"equals"}
+        ],
+        explanation: "Za ceo broj koristi se nextInt(), brojevi idu do 10, ispisuje se i, a poređenje String vrednosti radi se metodom equals()."
+      },
+      {
+        id: "java-16", section: "JAVA", type: "order", points: 5,
+        prompt: "Upiši redne brojeve 1-5 tako da program ima logičan tok.",
+        rows: [
+          {id:"out", text:"Ispis rezultata", correct:5},
+          {id:"dec", text:"Deklarisanje promenljivih", correct:2},
+          {id:"input", text:"Učitavanje podataka", correct:3},
+          {id:"process", text:"Obrada podataka", correct:4},
+          {id:"import", text:"Uvoz Scanner klase", correct:1}
+        ],
+        explanation: "Prvo se uvozi klasa, zatim se deklarišu promenljive, učitavaju podaci, obrađuju se i na kraju se ispisuje rezultat."
+      },
+      {
+        id: "java-17", section: "JAVA", type: "single", points: 1,
+        prompt: "Šta će program ispisati?",
+        code: "int x = 2;\nfor (int i = 1; i <= 3; i++) {\n    x = x + i;\n}\nSystem.out.println(x);",
+        options: [{id:"A", text:"5"}, {id:"B", text:"6"}, {id:"C", text:"8"}, {id:"D", text:"9"}],
+        correct: "C",
+        explanation: "x kreće od 2, zatim se dodaju 1, 2 i 3. Ukupno je 8."
+      },
+      {
+        id: "java-18", section: "JAVA", type: "single", points: 1,
+        prompt: "Šta će biti rezultat?",
+        code: "int broj = 15;\nif (broj % 3 == 0)\n    System.out.println(\"Deljiv\");\nelse\n    System.out.println(\"Nije deljiv\");",
+        options: [{id:"A", text:"Deljiv"}, {id:"B", text:"Nije deljiv"}, {id:"C", text:"15"}, {id:"D", text:"Greška"}],
+        correct: "A",
+        explanation: "15 je deljiv sa 3, pa se ispisuje Deljiv."
+      },
+
+      {
+        id: "excel-1", section: "EXCEL", type: "single", points: 1,
+        prompt: "Deo prozora u kome se vidi sadržaj ćelije naziva se:",
+        options: [{id:"A", text:"Name Box"}, {id:"B", text:"Tool Bar"}, {id:"C", text:"Formula Bar"}],
+        correct: "C",
+        explanation: "Formula Bar prikazuje sadržaj aktivne ćelije."
+      },
+      {
+        id: "excel-2", section: "EXCEL", type: "text", points: 1,
+        prompt: "Kako se zapisuje skup ćelija od B19 do C18?",
+        answers: ["B19:C18", "B18:C19"], correctText: "B19:C18 ili B18:C19",
+        explanation: "U zadatku su zadate suprotne ćoškaste ćelije. Prihvaćeno je B19:C18, a u praksi se često zapisuje normalizovano kao B18:C19."
+      },
+      {
+        id: "excel-3", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta znači kada formula u Excel-u glasi =A1?",
+        options: [{id:"A", text:"Relativna adresa"}, {id:"B", text:"Mešovita adresa"}, {id:"V", text:"Apsolutna adresa"}, {id:"G", text:"Greška u formuli"}],
+        correct: "A",
+        explanation: "A1 je relativna adresa. Apsolutna bi bila, na primer, $A$1."
+      },
+      {
+        id: "excel-4", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta radi funkcija LEN(A1)?",
+        options: [{id:"A", text:"Vraća broj reči u ćeliji"}, {id:"B", text:"Vraća dužinu teksta u ćeliji, odnosno broj karaktera"}, {id:"V", text:"Skraćuje tekst"}, {id:"G", text:"Vraća broj praznih mesta"}],
+        correct: "B",
+        explanation: "LEN vraća broj karaktera u tekstu."
+      },
+      {
+        id: "excel-5", section: "EXCEL", type: "single", points: 1,
+        prompt: "Kako povezujemo podatke sa drugog lista u formuli?",
+        options: [{id:"A", text:"Ime_lista!adresa_ćelije"}, {id:"B", text:"List(adresa)"}, {id:"V", text:"File:Sheet"}, {id:"G", text:"Sheet.adresa"}],
+        correct: "A",
+        explanation: "Podaci sa drugog lista referenciraju se zapisom ImeLista!AdresaĆelije."
+      },
+      {
+        id: "excel-6", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta je Pivot Table?",
+        options: [{id:"A", text:"Običan grafikon"}, {id:"B", text:"Alat za uređivanje teksta"}, {id:"V", text:"Tabela koja omogućava analizu i sažimanje podataka"}, {id:"G", text:"Vid obojene tabele"}],
+        correct: "V",
+        explanation: "Pivot tabela služi za analizu, grupisanje i sažimanje podataka."
+      },
+      {
+        id: "excel-7", section: "EXCEL", type: "text", points: 1,
+        prompt: "Prilikom unosa formule prvo se unosi znak:",
+        answers: ["=", "jednako"], correctText: "=",
+        explanation: "Formula u Excel-u najčešće počinje znakom =."
+      },
+      {
+        id: "excel-8", section: "EXCEL", type: "single", points: 1,
+        prompt: "Koja je razlika između COUNT i COUNTA?",
+        options: [{id:"A", text:"Nema razlike"}, {id:"B", text:"COUNT broji brojeve, COUNTA broji sve neprazne ćelije"}, {id:"V", text:"COUNTA broji samo tekst"}, {id:"G", text:"COUNT broji samo tekst"}],
+        correct: "B",
+        explanation: "COUNT broji numeričke vrednosti, a COUNTA sve neprazne ćelije."
+      },
+      {
+        id: "excel-9", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta radi funkcija CONCATENATE?",
+        options: [{id:"A", text:"Briše ćelije"}, {id:"B", text:"Sabira brojeve"}, {id:"V", text:"Spaja više tekstova u jedan"}, {id:"G", text:"Otvara novi list"}],
+        correct: "V",
+        explanation: "CONCATENATE spaja tekstualne vrednosti."
+      },
+      {
+        id: "excel-10", section: "EXCEL", type: "single", points: 1,
+        prompt: "Kako se u Excel-u spajaju ćelije?",
+        options: [{id:"A", text:"Desni klik → Merge Cells"}, {id:"B", text:"Home → Merge & Center"}, {id:"V", text:"Insert → Merge"}, {id:"G", text:"Data → Merge Cells"}],
+        correct: "B",
+        explanation: "Komanda Merge & Center nalazi se na kartici Home."
+      },
+      {
+        id: "excel-11", section: "EXCEL", type: "single", points: 1,
+        prompt: "Koja funkcija sabira sve brojeve u opsegu koji zadovoljava uslov?",
+        options: [{id:"A", text:"SUMIF"}, {id:"B", text:"COUNTIF"}, {id:"V", text:"AVERAGEIF"}, {id:"G", text:"IFSUM"}],
+        correct: "A",
+        explanation: "SUMIF sabira vrednosti koje zadovoljavaju zadati uslov."
+      },
+      {
+        id: "excel-12", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta radi funkcija ROUND(B1,2)?",
+        options: [{id:"A", text:"Seče tekst"}, {id:"B", text:"Zaokružuje broj u ćeliji B1 na 2 decimale"}, {id:"V", text:"Izračunava kvadratni koren"}, {id:"G", text:"Ispisuje broj u drugom formatu"}],
+        correct: "B",
+        explanation: "ROUND(B1,2) zaokružuje vrednost iz B1 na dve decimale."
+      },
+      {
+        id: "excel-13", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta radi funkcija =TEXT(A1, \"dd.mm.yyyy\")?",
+        options: [{id:"A", text:"Pretvara broj u tekst"}, {id:"B", text:"Formatira datum u zadati oblik"}, {id:"V", text:"Ispisuje broj dana"}, {id:"G", text:"Sortira datume"}],
+        correct: "B",
+        explanation: "TEXT može da prikaže datum u zadatom tekstualnom formatu."
+      },
+      {
+        id: "excel-14", section: "EXCEL", type: "single", points: 1,
+        prompt: "Koja funkcija prikazuje samo ceo broj bez decimala?",
+        options: [{id:"A", text:"ROUND"}, {id:"B", text:"INT"}, {id:"V", text:"FIXED"}, {id:"G", text:"FLOOR"}],
+        correct: "B",
+        explanation: "INT vraća ceo broj."
+      },
+      {
+        id: "excel-15", section: "EXCEL", type: "single", points: 1,
+        prompt: "Koja je tačna adresa ćelije u koloni B i redu četiri?",
+        options: [{id:"A", text:"4B"}, {id:"B", text:"B4"}, {id:"C", text:"BB4"}, {id:"D", text:"4:4"}],
+        correct: "B",
+        explanation: "Prvo se piše slovo kolone, pa broj reda: B4."
+      },
+      {
+        id: "excel-16", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta označava A1:A5?",
+        options: [{id:"A", text:"Jednu ćeliju"}, {id:"B", text:"Opseg ćelija od A1 do A5"}, {id:"C", text:"Pet kolona"}, {id:"D", text:"Red broj 5"}],
+        correct: "B",
+        explanation: "A1:A5 je opseg ćelija u koloni A, od reda 1 do reda 5."
+      },
+      {
+        id: "excel-17", section: "EXCEL", type: "single", points: 1,
+        prompt: "Koja formula sabira vrednosti od B2 do B8?",
+        options: [{id:"A", text:"=ADD(B2:B8)"}, {id:"B", text:"=SUM(B2:B8)"}, {id:"C", text:"=TOTAL(B2-B8)"}, {id:"D", text:"=SABERI B2:B8"}],
+        correct: "B",
+        explanation: "Za sabiranje se koristi SUM."
+      },
+      {
+        id: "excel-18", section: "EXCEL", type: "single", points: 1,
+        prompt: "Koja formula računa prosek vrednosti od C2 do C10?",
+        options: [{id:"A", text:"=AVERAGE(C2:C10)"}, {id:"B", text:"=SUM(C2:C10)"}, {id:"C", text:"=COUNTIF(C2:C10)"}, {id:"D", text:"=PROSEK C2:C10"}],
+        correct: "A",
+        explanation: "AVERAGE računa aritmetičku sredinu."
+      },
+      {
+        id: "excel-19", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta radi formula =COUNTIF(A2:A20,\"Petar\")?",
+        options: [{id:"A", text:"Sabira sve ćelije"}, {id:"B", text:"Broji koliko puta se pojavljuje Petar"}, {id:"C", text:"Računa prosek"}, {id:"D", text:"Briše tekst Petar"}],
+        correct: "B",
+        explanation: "COUNTIF broji ćelije koje zadovoljavaju uslov."
+      },
+      {
+        id: "excel-20", section: "EXCEL", type: "single", points: 1,
+        prompt: "Koja formula broji ocene veće ili jednake 4 u opsegu D2:D16?",
+        options: [{id:"A", text:"=COUNTIF(D2:D16,\">=4\")"}, {id:"B", text:"=SUM(D2:D16,\">=4\")"}, {id:"C", text:"=AVERAGE(D2:D16,4)"}, {id:"D", text:"=COUNT(D2:D16,\"4\")"}],
+        correct: "A",
+        explanation: "COUNTIF sa uslovom >=4 broji sve vrednosti veće ili jednake 4."
+      },
+      {
+        id: "excel-21", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta označava kolona u Excelu?",
+        options: [{id:"A", text:"Horizontalni niz ćelija"}, {id:"B", text:"Vertikalni niz ćelija"}, {id:"C", text:"Jedan broj"}, {id:"D", text:"Jedna formula"}],
+        correct: "B",
+        explanation: "Kolona je vertikalni niz ćelija."
+      },
+      {
+        id: "excel-22", section: "EXCEL", type: "single", points: 1,
+        prompt: "Šta označava red u Excelu?",
+        options: [{id:"A", text:"Horizontalni niz ćelija"}, {id:"B", text:"Vertikalni niz ćelija"}, {id:"C", text:"Slovo u tabeli"}, {id:"D", text:"Naziv fajla"}],
+        correct: "A",
+        explanation: "Red je horizontalni niz ćelija."
+      },
+      {
+        id: "excel-23", section: "EXCEL", type: "single", points: 1,
+        prompt: "Koji znak se u Excelu obično piše na početku formule?",
+        options: [{id:"A", text:"+"}, {id:"B", text:"="}, {id:"C", text:"#"}, {id:"D", text:"@"}],
+        correct: "B",
+        explanation: "Formula najčešće počinje znakom =."
+      },
+      {
+        id: "excel-24", section: "EXCEL", type: "single", points: 1,
+        prompt: "Koja formula računa zbir vrednosti u ćelijama A1, A2 i A3?",
+        options: [{id:"A", text:"=SUM(A1:A3)"}, {id:"B", text:"=AVERAGE(A1:A3)"}, {id:"C", text:"=COUNTIF(A1:A3)"}, {id:"D", text:"=A1-A3"}],
+        correct: "A",
+        explanation: "SUM(A1:A3) sabira A1, A2 i A3."
+      },
+      {
+        id: "excel-25", section: "EXCEL", type: "tableText", points: 5,
+        prompt: "Na osnovu tabele odgovori na pitanja i napiši formule.",
+        table: {
+          headers: ["Ime", "Predmet", "Ocena", "Poeni", "Status"],
+          rows: [
+            ["Ana", "Java", "5", "92", "položio"],
+            ["Marko", "Excel", "4", "78", "položio"],
+            ["Jana", "Java", "3", "64", "položio"],
+            ["Petar", "Excel", "2", "45", "nije položio"],
+            ["Mina", "Java", "5", "96", "položio"],
+            ["Luka", "Excel", "4", "82", "položio"]
+          ]
+        },
+        blanks: [
+          {label:"1. Formula koja sabira sve poene učenika", answers:["=SUM(D2:D7)", "SUM(D2:D7)", "=SUM(D2;D7)"], correctText:"=SUM(D2:D7)"},
+          {label:"2. Formula koja računa prosečnu ocenu učenika", answers:["=AVERAGE(C2:C7)", "AVERAGE(C2:C7)", "=AVERAGE(C2;C7)", "=PROSEK(C2:C7)", "PROSEK(C2:C7)"], correctText:"=AVERAGE(C2:C7)"},
+          {label:"3. Formula koja broji koliko učenika ima ocenu 5", answers:["=COUNTIF(C2:C7,5)", "COUNTIF(C2:C7,5)", "=COUNTIF(C2:C7;5)", "=COUNTIF(C2:C7,\"5\")", "=COUNTIF(C2:C7;\"5\")"], correctText:"=COUNTIF(C2:C7,5)"},
+          {label:"5. Adresa ćelije u kojoj se nalazi ocena učenika Petar", answers:["C5"], correctText:"C5"},
+          {label:"6. Opseg ćelija u kome se nalaze sve ocene", answers:["C2:C7"], correctText:"C2:C7"}
+        ],
+        explanation: "Ako je prvi red zaglavlje, ocene su u C2:C7, poeni u D2:D7, a Petarova ocena je u C5."
+      },
+
+      {
+        id: "jupyter-1", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Šta će program ispisati?",
+        code: "ime = 'Marko'\nprint('Zdravo', ime)",
+        options: [{id:"A", text:"Zdravo"}, {id:"B", text:"Marko"}, {id:"C", text:"Zdravo Marko"}],
+        correct: "C",
+        explanation: "Print ispisuje tekst Zdravo i vrednost promenljive ime."
+      },
+      {
+        id: "jupyter-2", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Koji tip podatka predstavlja decimalan broj?",
+        options: [{id:"A", text:"int"}, {id:"B", text:"str"}, {id:"C", text:"float"}, {id:"D", text:"bool"}],
+        correct: "C",
+        explanation: "Decimalan broj je tipa float."
+      },
+      {
+        id: "jupyter-3", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Šta će biti vrednost promenljive x?",
+        code: "x = int(input('Unesi broj:'))",
+        options: [{id:"A", text:"Tekst"}, {id:"B", text:"Ceo broj"}, {id:"C", text:"Decimalan broj"}, {id:"D", text:"Logička vrednost"}],
+        correct: "B",
+        explanation: "Funkcija int() pretvara unos u ceo broj."
+      },
+      {
+        id: "jupyter-4", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Šta će program ispisati?",
+        code: "for i in range(3):\n    print(i)",
+        options: [{id:"A", text:"1 2 3"}, {id:"B", text:"0 1 2"}, {id:"C", text:"0 1 2 3"}],
+        correct: "B",
+        explanation: "range(3) daje vrednosti 0, 1 i 2."
+      },
+      {
+        id: "jupyter-5", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Šta će biti rezultat?",
+        code: "a = 5\nb = 2\nprint(a > b)",
+        options: [{id:"A", text:"5"}, {id:"B", text:"2"}, {id:"C", text:"True"}, {id:"D", text:"False"}],
+        correct: "C",
+        explanation: "Pošto je 5 veće od 2, izraz a > b je True."
+      },
+      {
+        id: "jupyter-6", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Koja biblioteka se koristi za rad sa tabelarnim podacima?",
+        options: [{id:"A", text:"Pandas"}, {id:"B", text:"Turtle"}, {id:"C", text:"Matplotlib"}],
+        correct: "A",
+        explanation: "Pandas se koristi za rad sa tabelarnim podacima."
+      },
+      {
+        id: "jupyter-7", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Šta radi naredba df.sort_values('Poeni')?",
+        code: "df.sort_values('Poeni')",
+        options: [{id:"A", text:"Briše kolonu"}, {id:"B", text:"Sortira podatke po koloni Poeni"}, {id:"C", text:"Dodaje kolonu"}, {id:"D", text:"Filtrira podatke"}],
+        correct: "B",
+        explanation: "sort_values sortira redove prema vrednostima iz zadate kolone."
+      },
+      {
+        id: "jupyter-8", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Koja biblioteka služi za crtanje grafikona?",
+        options: [{id:"A", text:"Pandas"}, {id:"B", text:"Matplotlib"}, {id:"C", text:"NumPy"}, {id:"D", text:"Random"}],
+        correct: "B",
+        explanation: "Matplotlib se koristi za crtanje grafikona."
+      },
+      {
+        id: "jupyter-9", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Šta radi naredba plt.plot(x, y)?",
+        code: "plt.plot(x, y)",
+        options: [{id:"A", text:"Crta linijski grafik"}, {id:"B", text:"Briše grafik"}, {id:"C", text:"Sortira podatke"}, {id:"D", text:"Učitava podatke"}],
+        correct: "A",
+        explanation: "plt.plot crta linijski grafik."
+      },
+      {
+        id: "jupyter-10", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Kojom naredbom prikazujemo grafik?",
+        options: [{id:"A", text:"plt.show()"}, {id:"B", text:"plt.display()"}, {id:"C", text:"show()"}],
+        correct: "A",
+        explanation: "plt.show() prikazuje grafikon."
+      },
+      {
+        id: "jupyter-11", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Kojom naredbom postavljamo naslov grafikona?",
+        options: [{id:"A", text:"plt.title('Grafik')"}, {id:"B", text:"plt.name('Grafik')"}, {id:"C", text:"plt.header('Grafik')"}, {id:"D", text:"plt.text('Grafik')"}],
+        correct: "A",
+        explanation: "plt.title postavlja naslov grafikona."
+      },
+      {
+        id: "jupyter-12", section: "JUPYTER", type: "single", points: 1,
+        prompt: "Šta radi naredba plt.bar(x, y)?",
+        code: "plt.bar(x, y)",
+        options: [{id:"A", text:"Linijski grafik"}, {id:"B", text:"Stubičasti grafik"}, {id:"C", text:"Kružni grafik"}, {id:"D", text:"Tabela"}],
+        correct: "B",
+        explanation: "plt.bar crta stubičasti grafik."
+      }
+    ];
+
+    const SECTION_LABELS = {
+      JAVA: "Java kviz",
+      EXCEL: "Excel kviz",
+      JUPYTER: "Jupyter/Python kviz"
+    };
+
+    const setup = document.getElementById("setup");
+    const startBtn = document.getElementById("startBtn");
+    const quizArea = document.getElementById("quizArea");
+    const results = document.getElementById("results");
+    const progressWrap = document.getElementById("progressWrap");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    const finishTopBtn = document.getElementById("finishTopBtn");
+    const allSections = document.getElementById("allSections");
+
+    let activeQuestions = [];
+    let studentName = "";
+
+    allSections.addEventListener("change", () => {
+      document.querySelectorAll('#sectionPicker input[type="checkbox"]').forEach(cb => {
+        cb.checked = allSections.checked;
+      });
+    });
+
+    document.querySelectorAll('#sectionPicker input[type="checkbox"]:not(#allSections)').forEach(cb => {
+      cb.addEventListener("change", () => {
+        const boxes = Array.from(document.querySelectorAll('#sectionPicker input[type="checkbox"]:not(#allSections)'));
+        allSections.checked = boxes.every(box => box.checked);
+      });
+    });
+
+    startBtn.addEventListener("click", startQuiz);
+    finishTopBtn.addEventListener("click", finishQuiz);
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalize(value) {
+      return String(value ?? "")
+        .trim()
+        .replace(/[“”„]/g, '"')
+        .replace(/[‘’]/g, "'")
+        .replace(/\s+/g, "")
+        .toUpperCase();
+    }
+
+    function normalizeText(value) {
+      return String(value ?? "")
+        .trim()
+        .replace(/[“”„]/g, '"')
+        .replace(/[‘’]/g, "'")
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+    }
+
+    function isAccepted(userValue, answers) {
+      const n = normalize(userValue);
+      return answers.some(ans => normalize(ans) === n || normalizeText(ans) === normalizeText(userValue));
+    }
+
+    function startQuiz() {
+      const checked = Array.from(document.querySelectorAll('#sectionPicker input[type="checkbox"]:not(#allSections):checked')).map(x => x.value);
+      if (!checked.length) {
+        alert("Izaberi bar jedan deo kviza.");
+        return;
+      }
+      studentName = document.getElementById("studentName").value.trim();
+      activeQuestions = QUESTIONS.filter(q => checked.includes(q.section));
+      setup.classList.add("hidden");
+      results.classList.add("hidden");
+      progressWrap.style.display = "block";
+      renderQuiz();
+      updateProgress();
+      window.scrollTo({top: 0, behavior: "smooth"});
+    }
+
+    function renderQuiz() {
+      quizArea.classList.remove("hidden");
+      const grouped = activeQuestions.reduce((acc, q) => {
+        (acc[q.section] ||= []).push(q);
+        return acc;
+      }, {});
+      let html = "";
+      for (const [section, items] of Object.entries(grouped)) {
+        const points = items.reduce((sum, q) => sum + q.points, 0);
+        html += `<div class="section-title"><h2>${SECTION_LABELS[section]}</h2><span class="pill">${items.length} pitanja, ${points} poena</span></div>`;
+        items.forEach((q, index) => {
+          html += renderQuestion(q, index + 1);
+        });
+      }
+      html += `<div class="panel"><strong>Kraj kviza.</strong><div class="actions"><button id="finishBottomBtn">Predaj test</button><button class="secondary" id="resetBtn">Vrati se na početak</button></div></div>`;
+      quizArea.innerHTML = html;
+      quizArea.addEventListener("input", updateProgress);
+      quizArea.addEventListener("change", updateProgress);
+      document.getElementById("finishBottomBtn").addEventListener("click", finishQuiz);
+      document.getElementById("resetBtn").addEventListener("click", resetAll);
+    }
+
+    function renderQuestion(q, number) {
+      const pointsText = q.points === 1 ? "1 poen" : `${q.points} poena`;
+      let body = `<div class="question" data-qid="${q.id}">`;
+      body += `<div class="question-top"><div class="qnum">${number}.</div><div class="qtitle">${escapeHtml(q.prompt)}</div><div class="points">${pointsText}</div></div>`;
+      if (q.code) body += `<pre>${escapeHtml(q.code)}</pre>`;
+      if (q.note) body += `<div class="note">${escapeHtml(q.note)}</div>`;
+
+      if (q.type === "single") {
+        body += `<div class="choices">`;
+        q.options.forEach(opt => {
+          body += `<label class="choice"><input type="radio" name="${q.id}" value="${opt.id}"><strong>${escapeHtml(opt.id)})</strong><span>${escapeHtml(opt.text)}</span></label>`;
+        });
+        body += `</div>`;
+      }
+
+      if (q.type === "text") {
+        body += `<input class="text-answer" type="text" name="${q.id}" placeholder="Upiši odgovor">`;
+      }
+
+      if (q.type === "multiText") {
+        body += `<div class="mini-grid">`;
+        q.blanks.forEach((blank, i) => {
+          body += `<div class="sub-card"><label>${escapeHtml(blank.label)}</label><input type="text" name="${q.id}-${i}" placeholder="Odgovor"></div>`;
+        });
+        body += `</div>`;
+      }
+
+      if (q.type === "tableText") {
+        body += renderTable(q.table);
+        body += `<div class="mini-grid">`;
+        q.blanks.forEach((blank, i) => {
+          body += `<div class="sub-card"><label>${escapeHtml(blank.label)}</label><input type="text" name="${q.id}-${i}" placeholder="Formula ili adresa"></div>`;
+        });
+        body += `</div>`;
+      }
+
+      if (q.type === "matching") {
+        body += `<div class="mini-grid"><div class="sub-card"><strong>Pojmovi</strong>`;
+        q.terms.forEach(term => {
+          body += `<div style="margin-top:10px"><label>${escapeHtml(term.id)}. ${escapeHtml(term.text)}</label><select name="${q.id}-${term.id}"><option value="">Izaberi značenje</option>${q.meanings.map(m => `<option value="${m.id}">${m.id}. ${escapeHtml(m.text)}</option>`).join("")}</select></div>`;
+        });
+        body += `</div><div class="sub-card"><strong>Značenja</strong>`;
+        q.meanings.forEach(m => {
+          body += `<p><strong>${m.id}.</strong> ${escapeHtml(m.text)}</p>`;
+        });
+        body += `</div></div>`;
+      }
+
+      if (q.type === "order") {
+        body += `<div class="mini-grid">`;
+        q.rows.forEach(row => {
+          body += `<div class="sub-card"><label>${escapeHtml(row.text)}</label><input type="number" min="1" max="5" name="${q.id}-${row.id}" placeholder="1-5"></div>`;
+        });
+        body += `</div>`;
+      }
+
+      body += `</div>`;
+      return body;
+    }
+
+    function renderTable(table) {
+      let html = `<table class="data-table"><thead><tr>`;
+      table.headers.forEach(h => html += `<th>${escapeHtml(h)}</th>`);
+      html += `</tr></thead><tbody>`;
+      table.rows.forEach(row => {
+        html += `<tr>${row.map(cell => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`;
+      });
+      html += `</tbody></table>`;
+      return html;
+    }
+
+    function getAnswer(q) {
+      if (q.type === "single") {
+        const checked = document.querySelector(`input[name="${q.id}"]:checked`);
+        return checked ? checked.value : "";
+      }
+      if (q.type === "text") {
+        return document.querySelector(`input[name="${q.id}"]`)?.value ?? "";
+      }
+      if (q.type === "multiText" || q.type === "tableText") {
+        return q.blanks.map((_, i) => document.querySelector(`input[name="${q.id}-${i}"]`)?.value ?? "");
+      }
+      if (q.type === "matching") {
+        const obj = {};
+        q.terms.forEach(term => obj[term.id] = document.querySelector(`select[name="${q.id}-${term.id}"]`)?.value ?? "");
+        return obj;
+      }
+      if (q.type === "order") {
+        const obj = {};
+        q.rows.forEach(row => obj[row.id] = document.querySelector(`input[name="${q.id}-${row.id}"]`)?.value ?? "");
+        return obj;
+      }
+      return "";
+    }
+
+    function scoreQuestion(q, answer) {
+      if (q.type === "single") {
+        const ok = answer === q.correct;
+        return {score: ok ? 1 : 0, total: 1, status: ok ? "correct" : "wrong"};
+      }
+      if (q.type === "text") {
+        const ok = isAccepted(answer, q.answers);
+        return {score: ok ? 1 : 0, total: 1, status: ok ? "correct" : "wrong"};
+      }
+      if (q.type === "multiText" || q.type === "tableText") {
+        let score = 0;
+        q.blanks.forEach((blank, i) => {
+          if (isAccepted(answer[i], blank.answers)) score += 1;
+        });
+        return {score, total: q.blanks.length, status: score === q.blanks.length ? "correct" : score > 0 ? "partial" : "wrong"};
+      }
+      if (q.type === "matching") {
+        let score = 0;
+        q.terms.forEach(term => {
+          if (answer[term.id] === q.correct[term.id]) score += 1;
+        });
+        return {score, total: q.terms.length, status: score === q.terms.length ? "correct" : score > 0 ? "partial" : "wrong"};
+      }
+      if (q.type === "order") {
+        let score = 0;
+        q.rows.forEach(row => {
+          if (Number(answer[row.id]) === row.correct) score += 1;
+        });
+        return {score, total: q.rows.length, status: score === q.rows.length ? "correct" : score > 0 ? "partial" : "wrong"};
+      }
+      return {score: 0, total: 0, status: "wrong"};
+    }
+
+    function getTotalAnswerSlots() {
+      return activeQuestions.reduce((sum, q) => {
+        if (q.type === "multiText" || q.type === "tableText") return sum + q.blanks.length;
+        if (q.type === "matching") return sum + q.terms.length;
+        if (q.type === "order") return sum + q.rows.length;
+        return sum + 1;
+      }, 0);
+    }
+
+    function getFilledAnswerSlots() {
+      return activeQuestions.reduce((sum, q) => {
+        const a = getAnswer(q);
+        if (q.type === "multiText" || q.type === "tableText") return sum + a.filter(x => String(x).trim()).length;
+        if (q.type === "matching") return sum + Object.values(a).filter(x => String(x).trim()).length;
+        if (q.type === "order") return sum + Object.values(a).filter(x => String(x).trim()).length;
+        return sum + (String(a).trim() ? 1 : 0);
+      }, 0);
+    }
+
+    function updateProgress() {
+      if (!activeQuestions.length) return;
+      const filled = getFilledAnswerSlots();
+      const total = getTotalAnswerSlots();
+      const pct = total ? Math.round((filled / total) * 100) : 0;
+      progressBar.style.width = `${pct}%`;
+      progressText.textContent = `${pct}% popunjeno (${filled}/${total} odgovora)`;
+    }
+
+    function finishQuiz() {
+      if (!activeQuestions.length) return;
+      const unanswered = getTotalAnswerSlots() - getFilledAnswerSlots();
+      if (unanswered > 0) {
+        const ok = confirm(`Ima još ${unanswered} nepopunjenih odgovora. Da li želiš ipak da predaš test?`);
+        if (!ok) return;
+      }
+      const rows = activeQuestions.map(q => {
+        const answer = getAnswer(q);
+        const scored = scoreQuestion(q, answer);
+        return {q, answer, ...scored};
+      });
+      const score = rows.reduce((sum, r) => sum + r.score, 0);
+      const total = rows.reduce((sum, r) => sum + r.total, 0);
+      const pct = total ? Math.round((score / total) * 100) : 0;
+      renderResults(rows, score, total, pct);
+      quizArea.classList.add("hidden");
+      progressWrap.style.display = "none";
+      results.classList.remove("hidden");
+      window.scrollTo({top: 0, behavior: "smooth"});
+    }
+
+    function renderResults(rows, score, total, pct) {
+      const bySection = rows.reduce((acc, r) => {
+        (acc[r.q.section] ||= {score: 0, total: 0});
+        acc[r.q.section].score += r.score;
+        acc[r.q.section].total += r.total;
+        return acc;
+      }, {});
+
+      let html = `<div class="result-card">`;
+      html += `<div class="kicker" style="color:var(--muted)">Rezultat</div>`;
+      html += `<h2>${escapeHtml(studentName || "Učenik")}</h2>`;
+      html += `<div class="score-big">${score}/${total}</div>`;
+      html += `<p><strong>${pct}% uspešnosti</strong></p>`;
+      html += `<div class="meta-row">`;
+      for (const [section, item] of Object.entries(bySection)) {
+        const p = Math.round((item.score / item.total) * 100);
+        html += `<span class="pill">${SECTION_LABELS[section]}: ${item.score}/${item.total} (${p}%)</span>`;
+      }
+      html += `</div>`;
+      html += `<div class="actions"><button onclick="window.print()">Odštampaj rezultat</button><button class="secondary" id="tryAgainBtn">Pokušaj ponovo</button><button class="secondary" id="newQuizBtn">Novi izbor delova</button></div>`;
+      html += `</div>`;
+
+      html += `<div class="section-title"><h2>Pregled odgovora i rešenja</h2><span class="pill">${rows.length} pitanja</span></div>`;
+      rows.forEach((row, i) => {
+        html += renderReview(row, i + 1);
+      });
+      results.innerHTML = html;
+      document.getElementById("tryAgainBtn").addEventListener("click", () => {
+        results.classList.add("hidden");
+        quizArea.classList.remove("hidden");
+        progressWrap.style.display = "block";
+        window.scrollTo({top: 0, behavior: "smooth"});
+      });
+      document.getElementById("newQuizBtn").addEventListener("click", resetAll);
+    }
+
+    function answerLabel(q, value) {
+      if (!value) return "nije odgovoreno";
+      if (q.type === "single") {
+        const opt = q.options.find(o => o.id === value);
+        return opt ? `${opt.id}) ${opt.text}` : value;
+      }
+      return value;
+    }
+
+    function correctLabel(q) {
+      if (q.type === "single") {
+        const opt = q.options.find(o => o.id === q.correct);
+        return opt ? `${opt.id}) ${opt.text}` : q.correct;
+      }
+      if (q.type === "text") return q.correctText;
+      if (q.type === "multiText" || q.type === "tableText") return q.blanks.map(b => `${b.label}: ${b.correctText}`).join(" | ");
+      if (q.type === "matching") return q.terms.map(t => `${t.text} → ${q.correct[t.id]}`).join(" | ");
+      if (q.type === "order") return q.rows.map(r => `${r.text}: ${r.correct}`).join(" | ");
+      return "";
+    }
+
+    function userAnswerLabel(q, answer) {
+      if (q.type === "single") return answerLabel(q, answer);
+      if (q.type === "text") return answer || "nije odgovoreno";
+      if (q.type === "multiText" || q.type === "tableText") {
+        return q.blanks.map((b, i) => `${b.label}: ${answer[i] || "nije odgovoreno"}`).join(" | ");
+      }
+      if (q.type === "matching") {
+        return q.terms.map(t => `${t.text} → ${answer[t.id] || "nije odgovoreno"}`).join(" | ");
+      }
+      if (q.type === "order") {
+        return q.rows.map(r => `${r.text}: ${answer[r.id] || "nije odgovoreno"}`).join(" | ");
+      }
+      return "";
+    }
+
+    function renderReview(row, number) {
+      const statusText = row.status === "correct" ? "Tačno" : row.status === "partial" ? "Delimično tačno" : "Netačno";
+      let html = `<article class="review-item ${row.status}">`;
+      html += `<div class="review-status">${number}. ${statusText} (${row.score}/${row.total})</div>`;
+      html += `<div class="review-line"><strong>Pitanje:</strong> ${escapeHtml(row.q.prompt)}</div>`;
+      if (row.q.code) html += `<pre>${escapeHtml(row.q.code)}</pre>`;
+      if (row.q.table) html += renderTable(row.q.table);
+      html += `<div class="review-line"><strong>Tvoj odgovor:</strong> ${escapeHtml(userAnswerLabel(row.q, row.answer))}</div>`;
+      html += `<div class="review-line"><strong>Tačno rešenje:</strong> ${escapeHtml(correctLabel(row.q))}</div>`;
+      html += `<div class="review-line muted">${escapeHtml(row.q.explanation || "")}</div>`;
+      html += `</article>`;
+      return html;
+    }
+
+    function resetAll() {
+      activeQuestions = [];
+      quizArea.innerHTML = "";
+      results.innerHTML = "";
+      quizArea.classList.add("hidden");
+      results.classList.add("hidden");
+      setup.classList.remove("hidden");
+      progressWrap.style.display = "none";
+      window.scrollTo({top: 0, behavior: "smooth"});
+    }
+  </script>
+</body>
+</html>
